@@ -178,29 +178,6 @@ This will remove all installed files. You'll need to manually remove the module 
 - Run the installer: `./install.sh`
 - Or manually copy: `cp links.conf.example ~/.config/waybar-weblinks/links.conf`
 
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs
-- Suggest features
-- Submit pull requests
-- Share your custom themes
-
 ## 📝 License
 
 MIT License - feel free to use and modify as you wish!
-
-## 🙏 Credits
-
-Created for the Waybar and Hyprland community. Inspired by macOS design principles.
-
-## 💡 Tips
-
-- Use descriptive emoji icons for quick visual identification
-- Keep your most-used links at the top
-- Use keyboard shortcuts in rofi to quickly navigate (type to search!)
-- Group similar services together (e.g., all PBX systems, all admin panels)
-
----
-
-**Made with ❤️ for the Linux desktop customization community**
