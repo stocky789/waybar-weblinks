@@ -110,4 +110,4 @@ for i in "${!NEW_LABELS[@]}"; do
     echo "  ${NEW_LABELS[$i]} → ${NEW_URLS[$i]}"
 done
 echo
-echo -e "Reload waybar to see changes: ${BLUE}killall waybar && waybar &${NC}"
+echo -e "Reload waybar to see changes: ${BLUE}killall waybar; nohup waybar >/dev/null 2>&1 &${NC}"

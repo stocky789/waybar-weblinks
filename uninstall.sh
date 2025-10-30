@@ -74,5 +74,5 @@ echo -e "  1. Remove the module from your waybar config:"
 echo -e "     ${BLUE}~/.config/waybar/config.jsonc${NC}"
 echo -e "  2. Remove ${BLUE}\"custom/web-shortcuts\"${NC} from your modules-right array"
 echo -e "  3. Remove the module definition block"
-echo -e "  4. Reload waybar: ${BLUE}killall waybar && waybar &${NC}"
+echo -e "  4. Reload waybar: ${BLUE}killall waybar; nohup waybar >/dev/null 2>&1 &${NC}"
 echo

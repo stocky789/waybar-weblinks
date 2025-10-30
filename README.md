@@ -59,7 +59,7 @@ Or manually edit `~/.config/waybar-weblinks/links.conf`
 
 4. Reload waybar:
 ```bash
-killall waybar && waybar &
+killall waybar; nohup waybar >/dev/null 2>&1 &
 ```
 
 ## ⚙️ Configuration
@@ -172,7 +172,7 @@ This will remove all installed files. You'll need to manually remove the module 
 ### Module not showing in waybar
 - Verify the module is added to your waybar config
 - Check that it's included in your `modules-right` array
-- Restart waybar: `killall waybar && waybar &`
+- Restart waybar: `killall waybar; nohup waybar >/dev/null 2>&1 &`
 
 ### Config file not found error
 - Run the installer: `./install.sh`

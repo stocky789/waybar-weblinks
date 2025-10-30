@@ -126,5 +126,5 @@ echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━
 echo
 echo -e "Next steps:"
 echo -e "  1. Run ${BLUE}./configure.sh${NC} to add your own links"
-echo -e "  2. Reload waybar: ${BLUE}killall waybar && waybar &${NC}"
+echo -e "  2. Reload waybar: ${BLUE}killall waybar; nohup waybar >/dev/null 2>&1 &${NC}"
 echo
