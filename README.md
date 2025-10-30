@@ -7,7 +7,6 @@ A beautiful, customizable web shortcuts menu for Waybar with a macOS-inspired gl
 
 ## ✨ Features
 
-- **🎨 Beautiful UI**: macOS-inspired glass theme with blur effects and smooth animations
 - **⚡ Fast & Lightweight**: Minimal resource usage using rofi and bash
 - **🔧 Easy Configuration**: Simple config file to manage your shortcuts
 - **🎯 Customizable**: Add unlimited shortcuts with emoji icons
