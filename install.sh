@@ -95,28 +95,24 @@ if [[ -f "$WAYBAR_CONFIG" ]]; then
     if grep -q "custom/web-shortcuts" "$WAYBAR_CONFIG"; then
         echo -e "${YELLOW}⚠ Waybar module already configured${NC}"
     else
-        echo -e "${YELLOW}⚠ Manual waybar configuration required${NC}"
-        echo
-        echo -e "${BLUE}Step 1:${NC} Add this module definition to your waybar config:"
-        echo -e "${BLUE}"
-        cat << 'EOF'
-
-  "custom/web-shortcuts": {
-    "format": "🌐",
-    "on-click": "~/.config/waybar/scripts/web-shortcuts.sh",
-    "tooltip-format": "Quick Web Links"
-  }
-EOF
-        echo -e "${NC}"
-        echo -e "${BLUE}Step 2:${NC} Add \"custom/web-shortcuts\" at the ${GREEN}START${NC} of your modules-right:"
-        echo -e "${BLUE}"
-        cat << 'EOF'
-  "modules-right": [
-    "custom/web-shortcuts",  // <-- Add here (leftmost right-side module)
-    // ... your existing modules like tray, network, etc.
-  ]
-EOF
-        echo -e "${NC}"
+        echo -e "${BLUE}Automatically configuring waybar...${NC}"
+        
+        # Backup the config
+        cp "$WAYBAR_CONFIG" "${WAYBAR_CONFIG}.backup-$(date +%Y%m%d-%H%M%S)"
+        
+        # Add the module definition before the last closing brace
+        # Find the last } and insert before it
+        sed -i '$ {s/^}/,\n  "custom\/web-shortcuts": {\n    "format": "🌐",\n    "on-click": "~\/.config\/waybar\/scripts\/web-shortcuts.sh",\n    "tooltip-format": "Quick Web Links"\n  }\n}/}' "$WAYBAR_CONFIG"
+        
+        # Add to modules-right array at the beginning
+        # Find "modules-right": [ and add our module as first entry
+        sed -i '/"modules-right".*\[/{
+            n
+            s/^\(\s*\)/\1"custom\/web-shortcuts",\n\1/
+        }' "$WAYBAR_CONFIG"
+        
+        echo -e "${GREEN}✓ Waybar config updated${NC}"
+        echo -e "${YELLOW}  Backup saved to: ${WAYBAR_CONFIG}.backup-$(date +%Y%m%d-%H%M%S)${NC}"
     fi
 else
     echo -e "${RED}✗ Waybar config not found at $WAYBAR_CONFIG${NC}"
