@@ -108,33 +108,7 @@ LINK_URLS=(
 
 ### Adding More Shortcuts
 
-Simply add new entries to both arrays:
-```bash
-LINK_LABELS=(
-    "📞 PBX1"
-    "💼 Portal"
-    "🎮 New Service"  # New entry
-)
-
-LINK_URLS=(
-    "https://pbx1.example.com"
-    "https://portal.example.com"
-    "https://newservice.example.com"  # Matching URL
-)
-```
-
-### Emoji Icon Ideas
-
-- 📞 ☎️ - Phone systems, VoIP
-- 💼 🏢 - Portals, business apps
-- 🔧 ⚙️ - Admin panels, settings
-- 🎫 🎟️ - Help desk, support
-- 📊 📈 - Analytics, dashboards
-- 🌐 🔗 - Web services
-- 🔐 🔑 - Security, auth
-- 📧 ✉️ - Email, messaging
-- 📁 🗂️ - File management
-- 🎨 🖼️ - Design tools
+Simply add new entries to both arrays in `~/.config/waybar-weblinks/links.conf`.
 
 ## 🎨 Customization
 
