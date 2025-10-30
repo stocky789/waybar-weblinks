@@ -44,31 +44,20 @@ cd waybar-weblinks
 ./install.sh
 ```
 
-3. Add the module to your waybar config (`~/.config/waybar/config.jsonc`):
-```json
-{
-  "modules-right": [
-    "custom/web-shortcuts",
-    // ... your other modules
-  ],
-  
-  // Add this in your module definitions:
-  "custom/web-shortcuts": {
-    "format": "🌐",
-    "on-click": "~/.config/waybar/scripts/web-shortcuts.sh",
-    "tooltip-format": "Quick Web Links"
-  }
-}
-```
+The installer will automatically:
+- Install rofi if needed
+- Copy files to the correct locations
+- **Automatically configure your waybar** (with backup)
+- Set up the default configuration
 
-4. Configure your links:
+3. Configure your links:
 ```bash
 ./configure.sh
 ```
 
 Or manually edit `~/.config/waybar-weblinks/links.conf`
 
-5. Reload waybar:
+4. Reload waybar:
 ```bash
 killall waybar && waybar &
 ```

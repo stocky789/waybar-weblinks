@@ -125,7 +125,6 @@ echo -e "${GREEN}  Installation Complete!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo
 echo -e "Next steps:"
-echo -e "  1. Edit your links: ${BLUE}$WEBLINKS_DIR/links.conf${NC}"
-echo -e "  2. Add the module to your waybar config (if not done)"
-echo -e "  3. Reload waybar: ${BLUE}killall waybar && waybar &${NC}"
+echo -e "  1. Run ${BLUE}./configure.sh${NC} to add your own links"
+echo -e "  2. Reload waybar: ${BLUE}killall waybar && waybar &${NC}"
 echo
