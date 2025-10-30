@@ -42,8 +42,8 @@ fi
 
 # If no existing config, use defaults
 if [[ ${#LABELS[@]} -eq 0 ]]; then
-    LABELS=("📞 PBX1" "📞 PBX2" "💼 Splynx" "🔧 Omada" "🎫 Helpdesk")
-    URLS=("https://pbx1.example.com" "https://pbx2.example.com" "https://portal.example.com/admin" "https://omada.example.com" "https://helpdesk.example.com")
+    LABELS=("🌐 GitHub Repo")
+    URLS=("https://github.com/stocky789/waybar-weblinks")
 fi
 
 echo "Current shortcuts:"

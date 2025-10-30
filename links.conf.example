@@ -4,20 +4,12 @@
 
 # Labels (what appears in the menu with emoji icons)
 LINK_LABELS=(
-    "📞 PBX1"
-    "📞 PBX2"
-    "💼 Splynx"
-    "🔧 Omada"
-    "🎫 Helpdesk"
+    "🌐 GitHub Repo"
 )
 
 # URLs (corresponding links that will open)
 LINK_URLS=(
-    "https://pbx1.example.com"
-    "https://pbx2.example.com"
-    "https://portal.example.com/admin"
-    "https://omada.example.com"
-    "https://helpdesk.example.com"
+    "https://github.com/stocky789/waybar-weblinks"
 )
 
 # Tips:

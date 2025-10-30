@@ -91,20 +91,16 @@ Edit `~/.config/waybar-weblinks/links.conf`:
 ```bash
 # Labels (what appears in the menu with emoji icons)
 LINK_LABELS=(
-    "📞 PBX1"
-    "📞 PBX2"
+    "🌐 GitHub Repo"  # Default - points to this project
+    "📞 My Service"    # Add your own links below
     "💼 Portal"
-    "🔧 Admin"
-    "🎫 Support"
 )
 
 # URLs (corresponding links that will open)
 LINK_URLS=(
-    "https://pbx1.example.com"
-    "https://pbx2.example.com"
+    "https://github.com/stocky789/waybar-weblinks"
+    "https://myservice.example.com"
     "https://portal.example.com"
-    "https://admin.example.com"
-    "https://support.example.com"
 )
 ```
 
