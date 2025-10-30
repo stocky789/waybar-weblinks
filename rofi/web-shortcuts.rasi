@@ -1,0 +1,78 @@
+* {
+    bg: rgba(30, 30, 35, 0.85);
+    bg-alt: rgba(50, 50, 55, 0.95);
+    fg: #e5e5e7;
+    selected: rgba(10, 132, 255, 0.8);
+    active: #0a84ff;
+    urgent: #ff453a;
+    border-color: rgba(255, 255, 255, 0.15);
+    
+    background-color: transparent;
+    text-color: @fg;
+    
+    font: "SF Pro Display 13";
+}
+
+window {
+    background-color: @bg;
+    border: 1px solid;
+    border-color: @border-color;
+    border-radius: 16px;
+    padding: 16px;
+    width: 320px;
+    location: center;
+    anchor: center;
+}
+
+mainbox {
+    background-color: transparent;
+    spacing: 12px;
+}
+
+inputbar {
+    background-color: @bg-alt;
+    text-color: @fg;
+    border-radius: 10px;
+    padding: 10px 14px;
+    children: [prompt, entry];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @active;
+    padding: 0 8px 0 0;
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg;
+    placeholder: "Search...";
+    placeholder-color: rgba(229, 229, 231, 0.4);
+}
+
+listview {
+    background-color: transparent;
+    columns: 1;
+    lines: 5;
+    spacing: 6px;
+    cycle: false;
+    dynamic: true;
+    scrollbar: false;
+}
+
+element {
+    background-color: @bg-alt;
+    text-color: @fg;
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+element selected {
+    background-color: @selected;
+    text-color: #ffffff;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+}

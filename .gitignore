@@ -1,0 +1,16 @@
+# User configuration (don't commit personal links)
+links.conf
+
+# Backup files
+*.bak
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

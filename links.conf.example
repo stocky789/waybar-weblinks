@@ -1,0 +1,27 @@
+# Web Links Configuration
+# Edit this file to customize your web shortcuts
+# Array format: each entry should have a matching label and URL at the same index
+
+# Labels (what appears in the menu with emoji icons)
+LINK_LABELS=(
+    "📞 PBX1"
+    "📞 PBX2"
+    "💼 Splynx"
+    "🔧 Omada"
+    "🎫 Helpdesk"
+)
+
+# URLs (corresponding links that will open)
+LINK_URLS=(
+    "https://pbx1.example.com"
+    "https://pbx2.example.com"
+    "https://portal.example.com/admin"
+    "https://omada.example.com"
+    "https://helpdesk.example.com"
+)
+
+# Tips:
+# - Make sure LINK_LABELS and LINK_URLS have the same number of entries
+# - Use any emoji you want in the labels
+# - URLs should include https:// or http://
+# - To add more links, just add entries to both arrays
