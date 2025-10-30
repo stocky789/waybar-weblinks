@@ -21,14 +21,26 @@ if ! command -v rofi &> /dev/null; then
     read -p "Install rofi? [Y/n] " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]; then
+        # Detect package manager and install rofi
         if command -v pacman &> /dev/null; then
+            echo -e "${BLUE}Installing rofi via pacman...${NC}"
             sudo pacman -S --noconfirm rofi
-        elif command -v apt &> /dev/null; then
-            sudo apt install -y rofi
+        elif command -v apt-get &> /dev/null; then
+            echo -e "${BLUE}Installing rofi via apt...${NC}"
+            sudo apt-get update && sudo apt-get install -y rofi
         elif command -v dnf &> /dev/null; then
+            echo -e "${BLUE}Installing rofi via dnf...${NC}"
             sudo dnf install -y rofi
+        elif command -v zypper &> /dev/null; then
+            echo -e "${BLUE}Installing rofi via zypper...${NC}"
+            sudo zypper install -y rofi
         else
-            echo -e "${RED}✗ Could not detect package manager. Please install rofi manually.${NC}"
+            echo -e "${RED}✗ Could not detect package manager.${NC}"
+            echo -e "${YELLOW}Please install rofi manually for your distribution:${NC}"
+            echo -e "  Arch/Manjaro:  sudo pacman -S rofi"
+            echo -e "  Debian/Ubuntu: sudo apt install rofi"
+            echo -e "  Fedora:        sudo dnf install rofi"
+            echo -e "  openSUSE:      sudo zypper install rofi"
             exit 1
         fi
         echo -e "${GREEN}✓ Rofi installed${NC}"
@@ -72,8 +84,8 @@ else
     echo -e "${GREEN}✓ Configuration file created${NC}"
 fi
 
-# Check waybar config
-echo -e "${BLUE}[5/5]${NC} Checking waybar configuration..."
+# Configure waybar module
+echo -e "${BLUE}[5/5]${NC} Configuring waybar..."
 WAYBAR_CONFIG="$WAYBAR_DIR/config.jsonc"
 if [[ ! -f "$WAYBAR_CONFIG" ]]; then
     WAYBAR_CONFIG="$WAYBAR_DIR/config"
@@ -83,8 +95,9 @@ if [[ -f "$WAYBAR_CONFIG" ]]; then
     if grep -q "custom/web-shortcuts" "$WAYBAR_CONFIG"; then
         echo -e "${YELLOW}⚠ Waybar module already configured${NC}"
     else
-        echo -e "${YELLOW}⚠ You need to manually add the module to your waybar config${NC}"
-        echo -e "Add this to your waybar config:"
+        echo -e "${YELLOW}⚠ Manual waybar configuration required${NC}"
+        echo
+        echo -e "${BLUE}Step 1:${NC} Add this module definition to your waybar config:"
         echo -e "${BLUE}"
         cat << 'EOF'
 
@@ -95,10 +108,19 @@ if [[ -f "$WAYBAR_CONFIG" ]]; then
   }
 EOF
         echo -e "${NC}"
-        echo -e "And add ${BLUE}\"custom/web-shortcuts\"${NC} to your modules-right array."
+        echo -e "${BLUE}Step 2:${NC} Add \"custom/web-shortcuts\" at the ${GREEN}START${NC} of your modules-right:"
+        echo -e "${BLUE}"
+        cat << 'EOF'
+  "modules-right": [
+    "custom/web-shortcuts",  // <-- Add here (leftmost right-side module)
+    // ... your existing modules like tray, network, etc.
+  ]
+EOF
+        echo -e "${NC}"
     fi
 else
     echo -e "${RED}✗ Waybar config not found at $WAYBAR_CONFIG${NC}"
+    echo -e "${YELLOW}Please configure waybar first, then run this installer again.${NC}"
 fi
 
 echo
