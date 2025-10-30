@@ -159,6 +159,15 @@ After installation, files will be placed at:
 - `~/.config/rofi/web-shortcuts.rasi` - Rofi theme
 - `~/.config/waybar-weblinks/links.conf` - Your configuration
 
+## 🗑️ Uninstallation
+
+To remove waybar-weblinks:
+```bash
+./uninstall.sh
+```
+
+This will remove all installed files. You'll need to manually remove the module from your waybar config.
+
 ## 🐛 Troubleshooting
 
 ### Menu doesn't appear when clicking
