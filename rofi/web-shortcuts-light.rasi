@@ -1,15 +1,15 @@
 * {
-    bg: rgba(30, 30, 35, 0.85);
-    bg-alt: rgba(50, 50, 55, 0.95);
-    fg: #e5e5e7;
-    selected: rgba(10, 132, 255, 0.8);
+    bg: rgba(245, 245, 250, 0.95);
+    bg-alt: rgba(255, 255, 255, 0.98);
+    fg: #1d1d1f;
+    selected: rgba(10, 132, 255, 0.2);
     active: #0a84ff;
     urgent: #ff453a;
-    border-color: rgba(255, 255, 255, 0.15);
-    
+    border-color: rgba(0, 0, 0, 0.1);
+
     background-color: transparent;
     text-color: @fg;
-    
+
     font: "SF Pro Display 13, Inter 13, Roboto 13, sans-serif 13";
 }
 
@@ -47,7 +47,7 @@ entry {
     background-color: transparent;
     text-color: @fg;
     placeholder: "Search...";
-    placeholder-color: rgba(229, 229, 231, 0.4);
+    placeholder-color: rgba(29, 29, 31, 0.4);
 }
 
 listview {
@@ -69,7 +69,7 @@ element {
 
 element selected {
     background-color: @selected;
-    text-color: #ffffff;
+    text-color: @active;
 }
 
 element-text {

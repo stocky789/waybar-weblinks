@@ -2,112 +2,616 @@
 
 # Interactive configuration script for waybar-weblinks
 
-set -e
+VERSION="2.0.0"
 
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/waybar-weblinks"
 CONFIG_FILE="$CONFIG_DIR/links.conf"
+BACKUP_DIR="$CONFIG_DIR/backups"
 
 # Colors
+RED='\033[0;31m'
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  Waybar Web Shortcuts Configuration${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo
+# Show help
+show_help() {
+    cat << EOF
+Waybar Web Shortcuts Configuration Tool v${VERSION}
 
-if [[ ! -d "$CONFIG_DIR" ]]; then
-    echo -e "${YELLOW}Config directory not found. Run install.sh first.${NC}"
+Usage: $(basename "$0") [COMMAND] [OPTIONS]
+
+Commands:
+  (no command)     Interactive full configuration (default)
+  list             List all configured shortcuts
+  add              Add a new shortcut
+  remove INDEX     Remove shortcut at INDEX (starting from 0)
+  edit INDEX       Edit shortcut at INDEX
+  disable INDEX    Disable shortcut at INDEX
+  enable INDEX     Enable shortcut at INDEX
+  backup           Create a backup of current configuration
+  restore          Restore from a backup
+  validate         Validate configuration file
+  settings         Configure global settings (browser, theme, etc.)
+
+Options:
+  -h, --help       Show this help message
+  -v, --version    Show version information
+  --non-interactive  Non-interactive mode (for scripting)
+
+Examples:
+  $(basename "$0")                    # Interactive configuration
+  $(basename "$0") list               # List all shortcuts
+  $(basename "$0") add                # Add new shortcut interactively
+  $(basename "$0") remove 2           # Remove third shortcut
+  $(basename "$0") edit 0             # Edit first shortcut
+  $(basename "$0") backup             # Backup configuration
+
+EOF
+    exit 0
+}
+
+# Show version
+show_version() {
+    echo "Waybar Web Shortcuts Configuration Tool v${VERSION}"
+    exit 0
+}
+
+# Parse command line arguments
+COMMAND="${1:-interactive}"
+if [[ "$COMMAND" == "-h" ]] || [[ "$COMMAND" == "--help" ]]; then
+    show_help
+elif [[ "$COMMAND" == "-v" ]] || [[ "$COMMAND" == "--version" ]]; then
+    show_version
+fi
+
+# Error handler
+error_exit() {
+    echo -e "${RED}Error: $1${NC}" >&2
     exit 1
+}
+
+# Check if config directory exists
+if [[ ! -d "$CONFIG_DIR" ]]; then
+    error_exit "Config directory not found. Run install.sh first."
 fi
 
-echo "This will help you configure your web shortcuts."
-echo "Press Enter to keep the current value, or type a new one."
-echo
+# Create backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR"
 
-# Initialize arrays
-LABELS=()
-URLS=()
+# Load existing configuration
+load_config() {
+    LABELS=()
+    URLS=()
+    DESCRIPTIONS=()
+    DISABLED=()
+    CATEGORIES=()
+    USE_CATEGORIES="false"
+    BROWSER="xdg-open"
+    PRIVATE_MODE="false"
+    THEME="dark"
 
-# Load existing config if it exists
-if [[ -f "$CONFIG_FILE" ]]; then
-    source "$CONFIG_FILE"
-    if [[ ${#LINK_LABELS[@]} -gt 0 ]]; then
-        LABELS=("${LINK_LABELS[@]}")
-        URLS=("${LINK_URLS[@]}")
+    if [[ -f "$CONFIG_FILE" ]]; then
+        source "$CONFIG_FILE"
+        if [[ ${#LINK_LABELS[@]} -gt 0 ]]; then
+            LABELS=("${LINK_LABELS[@]}")
+            URLS=("${LINK_URLS[@]}")
+        fi
+        if [[ ${#LINK_DESCRIPTIONS[@]} -gt 0 ]]; then
+            DESCRIPTIONS=("${LINK_DESCRIPTIONS[@]}")
+        fi
+        if [[ ${#LINK_DISABLED[@]} -gt 0 ]]; then
+            DISABLED=("${LINK_DISABLED[@]}")
+        fi
+        if [[ ${#LINK_CATEGORIES[@]} -gt 0 ]]; then
+            CATEGORIES=("${LINK_CATEGORIES[@]}")
+        fi
+        [[ -n "$LINK_USE_CATEGORIES" ]] && USE_CATEGORIES="$LINK_USE_CATEGORIES"
+        [[ -n "$LINK_BROWSER" ]] && BROWSER="$LINK_BROWSER"
+        [[ -n "$LINK_PRIVATE_MODE" ]] && PRIVATE_MODE="$LINK_PRIVATE_MODE"
+        [[ -n "$LINK_THEME" ]] && THEME="$LINK_THEME"
     fi
-fi
 
-# If no existing config, use defaults
-if [[ ${#LABELS[@]} -eq 0 ]]; then
-    LABELS=("🌐 GitHub Repo")
-    URLS=("https://github.com/stocky789/waybar-weblinks")
-fi
+    # Set defaults if no config exists
+    if [[ ${#LABELS[@]} -eq 0 ]]; then
+        LABELS=("🌐 GitHub Repo")
+        URLS=("https://github.com/stocky789/waybar-weblinks")
+        DESCRIPTIONS=("Project repository")
+    fi
+}
 
-echo "Current shortcuts:"
-for i in "${!LABELS[@]}"; do
-    echo "  $((i+1)). ${LABELS[$i]} → ${URLS[$i]}"
-done
-echo
+# Save configuration
+save_config() {
+    # Create backup first
+    if [[ -f "$CONFIG_FILE" ]]; then
+        cp "$CONFIG_FILE" "$BACKUP_DIR/links.conf.backup-$(date +%Y%m%d-%H%M%S)"
+    fi
 
-read -p "How many shortcuts do you want? [${#LABELS[@]}] " num_links
-num_links=${num_links:-${#LABELS[@]}}
-
-NEW_LABELS=()
-NEW_URLS=()
-
-for ((i=0; i<num_links; i++)); do
-    echo -e "\n${GREEN}Shortcut $((i+1)):${NC}"
-    
-    # Get label
-    default_label="${LABELS[$i]:-"🔗 Link $((i+1))"}"
-    read -p "  Label [${default_label}]: " label
-    label=${label:-$default_label}
-    NEW_LABELS+=("$label")
-    
-    # Get URL
-    default_url="${URLS[$i]:-"https://example.com"}"
-    read -p "  URL [${default_url}]: " url
-    url=${url:-$default_url}
-    NEW_URLS+=("$url")
-done
-
-# Write config file
-echo -e "\n${BLUE}Writing configuration...${NC}"
-cat > "$CONFIG_FILE" << EOF
+    cat > "$CONFIG_FILE" << EOF
 # Web Links Configuration
 # Generated by configure.sh on $(date)
+# Version: ${VERSION}
 
 # Labels (what appears in the menu with emoji icons)
 LINK_LABELS=(
 EOF
 
-for label in "${NEW_LABELS[@]}"; do
-    echo "    \"$label\"" >> "$CONFIG_FILE"
-done
+    for label in "${LABELS[@]}"; do
+        echo "    \"$label\"" >> "$CONFIG_FILE"
+    done
 
-cat >> "$CONFIG_FILE" << EOF
+    cat >> "$CONFIG_FILE" << EOF
 )
 
 # URLs (corresponding links that will open)
 LINK_URLS=(
 EOF
 
-for url in "${NEW_URLS[@]}"; do
-    echo "    \"$url\"" >> "$CONFIG_FILE"
-done
+    for url in "${URLS[@]}"; do
+        echo "    \"$url\"" >> "$CONFIG_FILE"
+    done
 
-cat >> "$CONFIG_FILE" << EOF
+    cat >> "$CONFIG_FILE" << EOF
 )
+
+# Descriptions (optional tooltips for each link)
+LINK_DESCRIPTIONS=(
 EOF
 
-echo -e "${GREEN}✓ Configuration saved to $CONFIG_FILE${NC}"
-echo
-echo "Your shortcuts:"
-for i in "${!NEW_LABELS[@]}"; do
-    echo "  ${NEW_LABELS[$i]} → ${NEW_URLS[$i]}"
-done
-echo
-echo -e "Reload waybar to see changes: ${BLUE}killall waybar; nohup waybar >/dev/null 2>&1 &${NC}"
+    for i in "${!LABELS[@]}"; do
+        desc="${DESCRIPTIONS[$i]:-}"
+        echo "    \"$desc\"" >> "$CONFIG_FILE"
+    done
+
+    cat >> "$CONFIG_FILE" << EOF
+)
+
+# Disabled shortcuts (indices of disabled items)
+LINK_DISABLED=(
+EOF
+
+    for idx in "${DISABLED[@]}"; do
+        echo "    $idx" >> "$CONFIG_FILE"
+    done
+
+    cat >> "$CONFIG_FILE" << EOF
+)
+
+# Optional: Categories for organizing shortcuts
+# Set LINK_USE_CATEGORIES="true" to enable
+LINK_USE_CATEGORIES="$USE_CATEGORIES"
+LINK_CATEGORIES=(
+EOF
+
+    for cat in "${CATEGORIES[@]}"; do
+        echo "    \"$cat\"" >> "$CONFIG_FILE"
+    done
+
+    cat >> "$CONFIG_FILE" << EOF
+)
+
+# Optional: Specific browser (firefox, chromium, brave, etc.)
+# Default: xdg-open (uses system default)
+LINK_BROWSER="$BROWSER"
+
+# Optional: Open in private/incognito mode (true/false)
+LINK_PRIVATE_MODE="$PRIVATE_MODE"
+
+# Optional: Theme selection (dark/light)
+LINK_THEME="$THEME"
+
+# Tips:
+# - Environment variables in URLs will be expanded: \${HOME}, \${USER}, etc.
+# - Use LINK_DISABLED array to disable items without deleting them
+# - Descriptions appear as tooltips in the menu
+EOF
+
+    echo -e "${GREEN}✓ Configuration saved to $CONFIG_FILE${NC}"
+}
+
+# Validate configuration
+validate_config() {
+    load_config
+
+    echo -e "${BLUE}Validating configuration...${NC}"
+
+    # Check array lengths
+    if [[ ${#LABELS[@]} -ne ${#URLS[@]} ]]; then
+        echo -e "${RED}✗ LINK_LABELS (${#LABELS[@]}) and LINK_URLS (${#URLS[@]}) have different lengths${NC}"
+        return 1
+    fi
+
+    # Check for empty arrays
+    if [[ ${#LABELS[@]} -eq 0 ]]; then
+        echo -e "${RED}✗ No shortcuts configured${NC}"
+        return 1
+    fi
+
+    # Validate URLs
+    local errors=0
+    for i in "${!URLS[@]}"; do
+        url="${URLS[$i]}"
+        if [[ ! "$url" =~ ^(https?|file)://.*$ ]] && [[ ! "$url" =~ \$\{.*\} ]]; then
+            echo -e "${YELLOW}⚠ Warning: Invalid URL format for '${LABELS[$i]}': $url${NC}"
+            ((errors++))
+        fi
+    done
+
+    if [[ $errors -eq 0 ]]; then
+        echo -e "${GREEN}✓ Configuration is valid${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}⚠ Configuration has $errors warning(s)${NC}"
+        return 0
+    fi
+}
+
+# List shortcuts
+list_shortcuts() {
+    load_config
+
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}  Configured Shortcuts${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+
+    for i in "${!LABELS[@]}"; do
+        status=""
+        if [[ " ${DISABLED[*]} " =~ " $i " ]]; then
+            status=" ${RED}[DISABLED]${NC}"
+        fi
+
+        echo -e "  ${GREEN}[$i]${NC} ${LABELS[$i]}$status"
+        echo -e "      → ${URLS[$i]}"
+        if [[ -n "${DESCRIPTIONS[$i]}" ]]; then
+            echo -e "      ℹ ${DESCRIPTIONS[$i]}"
+        fi
+        echo
+    done
+
+    echo -e "Total: ${#LABELS[@]} shortcuts ($(( ${#LABELS[@]} - ${#DISABLED[@]} )) enabled)"
+}
+
+# Add shortcut
+add_shortcut() {
+    load_config
+
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}  Add New Shortcut${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+
+    read -p "Label (with emoji): " label
+    [[ -z "$label" ]] && error_exit "Label cannot be empty"
+
+    read -p "URL: " url
+    [[ -z "$url" ]] && error_exit "URL cannot be empty"
+
+    read -p "Description (optional): " desc
+
+    LABELS+=("$label")
+    URLS+=("$url")
+    DESCRIPTIONS+=("$desc")
+
+    save_config
+    echo -e "${GREEN}✓ Shortcut added${NC}"
+    echo -e "\nReload waybar to see changes: ${BLUE}killall -SIGUSR2 waybar${NC}"
+}
+
+# Remove shortcut
+remove_shortcut() {
+    local index="$1"
+    load_config
+
+    if [[ -z "$index" ]]; then
+        error_exit "Index required. Usage: $(basename "$0") remove INDEX"
+    fi
+
+    if [[ ! "$index" =~ ^[0-9]+$ ]]; then
+        error_exit "Index must be a number"
+    fi
+
+    if [[ $index -ge ${#LABELS[@]} ]]; then
+        error_exit "Index out of range. Valid range: 0-$((${#LABELS[@]} - 1))"
+    fi
+
+    echo -e "${YELLOW}Removing: ${LABELS[$index]}${NC}"
+    read -p "Are you sure? [y/N] " -n 1 -r
+    echo
+
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        unset 'LABELS[$index]'
+        unset 'URLS[$index]'
+        unset 'DESCRIPTIONS[$index]'
+
+        # Reindex arrays
+        LABELS=("${LABELS[@]}")
+        URLS=("${URLS[@]}")
+        DESCRIPTIONS=("${DESCRIPTIONS[@]}")
+
+        # Update disabled indices
+        NEW_DISABLED=()
+        for idx in "${DISABLED[@]}"; do
+            if [[ $idx -lt $index ]]; then
+                NEW_DISABLED+=("$idx")
+            elif [[ $idx -gt $index ]]; then
+                NEW_DISABLED+=($((idx - 1)))
+            fi
+        done
+        DISABLED=("${NEW_DISABLED[@]}")
+
+        save_config
+        echo -e "${GREEN}✓ Shortcut removed${NC}"
+    else
+        echo "Cancelled"
+    fi
+}
+
+# Edit shortcut
+edit_shortcut() {
+    local index="$1"
+    load_config
+
+    if [[ -z "$index" ]]; then
+        error_exit "Index required. Usage: $(basename "$0") edit INDEX"
+    fi
+
+    if [[ ! "$index" =~ ^[0-9]+$ ]]; then
+        error_exit "Index must be a number"
+    fi
+
+    if [[ $index -ge ${#LABELS[@]} ]]; then
+        error_exit "Index out of range. Valid range: 0-$((${#LABELS[@]} - 1))"
+    fi
+
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}  Edit Shortcut [$index]${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+
+    read -p "Label [${LABELS[$index]}]: " label
+    label=${label:-${LABELS[$index]}}
+
+    read -p "URL [${URLS[$index]}]: " url
+    url=${url:-${URLS[$index]}}
+
+    read -p "Description [${DESCRIPTIONS[$index]:-none}]: " desc
+    desc=${desc:-${DESCRIPTIONS[$index]:-}}
+
+    LABELS[$index]="$label"
+    URLS[$index]="$url"
+    DESCRIPTIONS[$index]="$desc"
+
+    save_config
+    echo -e "${GREEN}✓ Shortcut updated${NC}"
+}
+
+# Disable shortcut
+disable_shortcut() {
+    local index="$1"
+    load_config
+
+    if [[ -z "$index" ]]; then
+        error_exit "Index required. Usage: $(basename "$0") disable INDEX"
+    fi
+
+    if [[ ! "$index" =~ ^[0-9]+$ ]]; then
+        error_exit "Index must be a number"
+    fi
+
+    if [[ $index -ge ${#LABELS[@]} ]]; then
+        error_exit "Index out of range. Valid range: 0-$((${#LABELS[@]} - 1))"
+    fi
+
+    # Check if already disabled
+    if [[ " ${DISABLED[*]} " =~ " $index " ]]; then
+        echo -e "${YELLOW}Shortcut is already disabled${NC}"
+        exit 0
+    fi
+
+    DISABLED+=("$index")
+    save_config
+    echo -e "${GREEN}✓ Shortcut disabled: ${LABELS[$index]}${NC}"
+}
+
+# Enable shortcut
+enable_shortcut() {
+    local index="$1"
+    load_config
+
+    if [[ -z "$index" ]]; then
+        error_exit "Index required. Usage: $(basename "$0") enable INDEX"
+    fi
+
+    if [[ ! "$index" =~ ^[0-9]+$ ]]; then
+        error_exit "Index must be a number"
+    fi
+
+    if [[ $index -ge ${#LABELS[@]} ]]; then
+        error_exit "Index out of range. Valid range: 0-$((${#LABELS[@]} - 1))"
+    fi
+
+    # Remove from disabled array
+    NEW_DISABLED=()
+    for idx in "${DISABLED[@]}"; do
+        [[ $idx -ne $index ]] && NEW_DISABLED+=("$idx")
+    done
+    DISABLED=("${NEW_DISABLED[@]}")
+
+    save_config
+    echo -e "${GREEN}✓ Shortcut enabled: ${LABELS[$index]}${NC}"
+}
+
+# Backup configuration
+backup_config() {
+    if [[ ! -f "$CONFIG_FILE" ]]; then
+        error_exit "No configuration file to backup"
+    fi
+
+    backup_file="$BACKUP_DIR/links.conf.manual-$(date +%Y%m%d-%H%M%S)"
+    cp "$CONFIG_FILE" "$backup_file"
+    echo -e "${GREEN}✓ Backup created: $backup_file${NC}"
+}
+
+# Restore configuration
+restore_config() {
+    echo -e "${BLUE}Available backups:${NC}"
+    echo
+
+    backups=($(ls -t "$BACKUP_DIR"/links.conf.* 2>/dev/null))
+
+    if [[ ${#backups[@]} -eq 0 ]]; then
+        error_exit "No backups found"
+    fi
+
+    for i in "${!backups[@]}"; do
+        echo "  [$i] $(basename "${backups[$i]}")"
+    done
+
+    echo
+    read -p "Select backup to restore [0-$((${#backups[@]} - 1))]: " choice
+
+    if [[ ! "$choice" =~ ^[0-9]+$ ]] || [[ $choice -ge ${#backups[@]} ]]; then
+        error_exit "Invalid selection"
+    fi
+
+    cp "${backups[$choice]}" "$CONFIG_FILE"
+    echo -e "${GREEN}✓ Configuration restored from: $(basename "${backups[$choice]}")${NC}"
+}
+
+# Configure settings
+configure_settings() {
+    load_config
+
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}  Global Settings${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+
+    echo "Current settings:"
+    echo "  Browser: $BROWSER"
+    echo "  Private mode: $PRIVATE_MODE"
+    echo "  Theme: $THEME"
+    echo "  Use categories: $USE_CATEGORIES"
+    echo
+
+    read -p "Browser [firefox/chromium/brave/xdg-open] ($BROWSER): " browser
+    BROWSER=${browser:-$BROWSER}
+
+    read -p "Private mode [true/false] ($PRIVATE_MODE): " private
+    PRIVATE_MODE=${private:-$PRIVATE_MODE}
+
+    read -p "Theme [dark/light] ($THEME): " theme
+    THEME=${theme:-$THEME}
+
+    read -p "Use categories [true/false] ($USE_CATEGORIES): " categories
+    USE_CATEGORIES=${categories:-$USE_CATEGORIES}
+
+    save_config
+    echo -e "${GREEN}✓ Settings saved${NC}"
+}
+
+# Interactive full configuration
+interactive_config() {
+    load_config
+
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}  Waybar Web Shortcuts Configuration${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+
+    echo "This will help you configure your web shortcuts."
+    echo "Press Enter to keep the current value, or type a new one."
+    echo
+
+    echo "Current shortcuts:"
+    for i in "${!LABELS[@]}"; do
+        echo "  $((i+1)). ${LABELS[$i]} → ${URLS[$i]}"
+    done
+    echo
+
+    read -p "How many shortcuts do you want? [${#LABELS[@]}] " num_links
+    num_links=${num_links:-${#LABELS[@]}}
+
+    NEW_LABELS=()
+    NEW_URLS=()
+    NEW_DESCRIPTIONS=()
+
+    for ((i=0; i<num_links; i++)); do
+        echo -e "\n${GREEN}Shortcut $((i+1)):${NC}"
+
+        # Get label
+        default_label="${LABELS[$i]:-"🔗 Link $((i+1))"}"
+        read -p "  Label [${default_label}]: " label
+        label=${label:-$default_label}
+        NEW_LABELS+=("$label")
+
+        # Get URL
+        default_url="${URLS[$i]:-"https://example.com"}"
+        read -p "  URL [${default_url}]: " url
+        url=${url:-$default_url}
+        NEW_URLS+=("$url")
+
+        # Get description
+        default_desc="${DESCRIPTIONS[$i]:-}"
+        read -p "  Description [${default_desc}]: " desc
+        desc=${desc:-$default_desc}
+        NEW_DESCRIPTIONS+=("$desc")
+    done
+
+    LABELS=("${NEW_LABELS[@]}")
+    URLS=("${NEW_URLS[@]}")
+    DESCRIPTIONS=("${NEW_DESCRIPTIONS[@]}")
+
+    save_config
+
+    echo
+    echo "Your shortcuts:"
+    for i in "${!LABELS[@]}"; do
+        echo "  ${LABELS[$i]} → ${URLS[$i]}"
+        [[ -n "${DESCRIPTIONS[$i]}" ]] && echo "    ℹ ${DESCRIPTIONS[$i]}"
+    done
+    echo
+    echo -e "Reload waybar to see changes: ${BLUE}killall -SIGUSR2 waybar${NC}"
+}
+
+# Main command dispatcher
+case "$COMMAND" in
+    interactive)
+        interactive_config
+        ;;
+    list)
+        list_shortcuts
+        ;;
+    add)
+        add_shortcut
+        ;;
+    remove)
+        remove_shortcut "$2"
+        ;;
+    edit)
+        edit_shortcut "$2"
+        ;;
+    disable)
+        disable_shortcut "$2"
+        ;;
+    enable)
+        enable_shortcut "$2"
+        ;;
+    backup)
+        backup_config
+        ;;
+    restore)
+        restore_config
+        ;;
+    validate)
+        validate_config
+        ;;
+    settings)
+        configure_settings
+        ;;
+    *)
+        error_exit "Unknown command: $COMMAND\nUse --help for usage information"
+        ;;
+esac
