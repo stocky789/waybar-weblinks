@@ -1,19 +1,149 @@
 # Web Links Configuration
 # Edit this file to customize your web shortcuts
-# Array format: each entry should have a matching label and URL at the same index
+# Version: 2.0.0
+
+# ============================================================================
+# BASIC CONFIGURATION
+# ============================================================================
 
 # Labels (what appears in the menu with emoji icons)
 LINK_LABELS=(
-    "🌐 GitHub Repo"
+    "🌐 GitHub"
+    "📧 Gmail"
+    "📺 YouTube"
+    "🐦 Twitter"
+    "💼 LinkedIn"
 )
 
 # URLs (corresponding links that will open)
 LINK_URLS=(
-    "https://github.com/stocky789/waybar-weblinks"
+    "https://github.com"
+    "https://mail.google.com"
+    "https://youtube.com"
+    "https://twitter.com"
+    "https://linkedin.com"
 )
 
-# Tips:
-# - Make sure LINK_LABELS and LINK_URLS have the same number of entries
-# - Use any emoji you want in the labels
-# - URLs should include https:// or http://
-# - To add more links, just add entries to both arrays
+# Descriptions (optional tooltips for each link)
+LINK_DESCRIPTIONS=(
+    "Code repository hosting"
+    "Check your email"
+    "Watch videos"
+    "Social network"
+    "Professional network"
+)
+
+# Disabled shortcuts (indices of disabled items, 0-based)
+# Example: LINK_DISABLED=(1 3) would disable Gmail and Twitter
+LINK_DISABLED=(
+)
+
+# ============================================================================
+# ADVANCED FEATURES
+# ============================================================================
+
+# Optional: Categories for organizing shortcuts
+# Set LINK_USE_CATEGORIES="true" to enable category view
+LINK_USE_CATEGORIES="false"
+
+# If categories are enabled, define them here
+LINK_CATEGORIES=(
+    "Work"
+    "Personal"
+    "Development"
+)
+
+# Map shortcuts to categories (by label keywords)
+CATEGORY_Work=(
+    "LinkedIn"
+    "Gmail"
+)
+
+CATEGORY_Personal=(
+    "YouTube"
+    "Twitter"
+)
+
+CATEGORY_Development=(
+    "GitHub"
+)
+
+# ============================================================================
+# BROWSER & DISPLAY SETTINGS
+# ============================================================================
+
+# Optional: Specific browser (firefox, chromium, brave, google-chrome, etc.)
+# Default: xdg-open (uses system default browser)
+LINK_BROWSER="xdg-open"
+
+# Optional: Open in private/incognito mode (true/false)
+# Supported browsers: firefox, chromium, chrome, brave
+LINK_PRIVATE_MODE="false"
+
+# Optional: Theme selection (dark/light)
+# dark uses: ~/.config/rofi/web-shortcuts.rasi
+# light uses: ~/.config/rofi/web-shortcuts-light.rasi
+LINK_THEME="dark"
+
+# ============================================================================
+# TIPS & TRICKS
+# ============================================================================
+
+# Environment Variables:
+# You can use environment variables in URLs:
+#   "https://github.com/${USER}/repos"
+#   "${HOME}/documents/file.html"
+#
+# The variables will be expanded when the shortcut is opened.
+
+# Multiple Shortcuts:
+# To quickly add/edit shortcuts, use the configure.sh tool:
+#   ./configure.sh list      # List all shortcuts
+#   ./configure.sh add       # Add a new shortcut
+#   ./configure.sh edit 0    # Edit first shortcut
+#   ./configure.sh disable 2 # Disable third shortcut
+#
+# Or run ./configure.sh for interactive configuration
+
+# Backup & Restore:
+# Automatic backups are created in:
+#   ~/.config/waybar-weblinks/backups/
+#
+# To manually backup or restore:
+#   ./configure.sh backup    # Create manual backup
+#   ./configure.sh restore   # Restore from backup
+
+# Validation:
+# To check if your configuration is valid:
+#   ./configure.sh validate
+
+# ============================================================================
+# EXAMPLES
+# ============================================================================
+
+# Example 1: Work-focused shortcuts
+# LINK_LABELS=("📧 Work Email" "📅 Calendar" "💬 Slack" "📊 Analytics")
+# LINK_URLS=("https://mail.company.com" "https://calendar.google.com" "https://slack.com" "https://analytics.company.com")
+
+# Example 2: Development shortcuts
+# LINK_LABELS=("🐙 GitHub" "🦊 GitLab" "📚 Docs" "🐛 Issues" "🚀 CI/CD")
+# LINK_URLS=("https://github.com" "https://gitlab.com" "https://docs.company.com" "https://github.com/user/repo/issues" "https://ci.company.com")
+
+# Example 3: Media & Entertainment
+# LINK_LABELS=("🎵 Spotify" "📺 Netflix" "🎮 Steam" "📖 Reddit")
+# LINK_URLS=("https://open.spotify.com" "https://netflix.com" "https://store.steampowered.com" "https://reddit.com")
+
+# Example 4: Using environment variables
+# LINK_LABELS=("🏠 Local Docs" "📁 My GitHub")
+# LINK_URLS=("file://${HOME}/Documents/index.html" "https://github.com/${USER}")
+
+# ============================================================================
+# IMPORTANT NOTES
+# ============================================================================
+
+# 1. Array Lengths: LINK_LABELS and LINK_URLS must have the same number of entries
+# 2. Indices: All indices (for LINK_DISABLED) start at 0
+# 3. Descriptions: Can be empty strings if you don't want tooltips
+# 4. Emojis: Use any emoji you like in labels for visual identification
+# 5. URL Format: URLs should start with https://, http://, or file://
+# 6. Reload: After editing, reload waybar: killall -SIGUSR2 waybar
